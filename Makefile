@@ -3,7 +3,7 @@ include $(GOROOT)/src/Make.inc
 CFLAGS=$(shell pkg-config --cflags uuid) -I.
 LDFLAGS=$(shell pkg-config --libs uuid)
 
-TARG=crypto/uuid
+TARG=github.com/nu7hatch/uuid
 CGOFILES=uuid.go
 CGO_CFLAGS=$(CFLAGS)
 CGO_LDFLAGS=$(LDFLAGS)

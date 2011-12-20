@@ -6,17 +6,23 @@ http://linux.die.net/man/3/libuuid
 
 Installation
 ------------
+Use the `goinstall` tool:
+
+	$ goinstall github.com/nu7hatch/gouuid
+
+... or install it manually:
 
 	$ git clone git://github.com/nu7hatch/gouuid.git
 	$ cd gouuid
 	$ make install
+
 
 Usage
 -----
 
 	package main
 
-	import "crypto/uuid"
+	import uuid "github.com/nu7hatch/uuid"
 
 	func main() {
 		 uuidStr := uuid.GenerateRand()
