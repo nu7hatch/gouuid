@@ -17,7 +17,9 @@ const (
 // current time. 
 func GenerateTime() string {
 	buf := C.malloc(C.size_t(uuidUnparsedSize))
+	defer C.free(buf)
 	uuid := C.malloc(C.size_t(uuidSize))
+	defer C.free(uuid)
 	C.uuid_generate_time((*C.uchar)(uuid))
 	C.uuid_unparse((*C.uchar)(uuid), (*C.char)(buf))
 	return C.GoString((*C.char)(buf))
@@ -26,8 +28,10 @@ func GenerateTime() string {
 // GenerateRand generate an universally unique identifier based on
 // randomly generated numbers.
 func GenerateRand() (res string) {
-	buf := C.malloc(C.size_t(uuidSize))
-	uuid := C.malloc(C.size_t(uuidUnparsedSize))
+	buf := C.malloc(C.size_t(uuidUnparsedSize))
+	defer C.free(buf)
+	uuid := C.malloc(C.size_t(uuidSize))
+	defer C.free(uuid)
 	C.uuid_generate_random((*C.uchar)(uuid))
 	C.uuid_unparse((*C.uchar)(uuid), (*C.char)(buf))
 	return C.GoString((*C.char)(buf))
