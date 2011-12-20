@@ -1,0 +1,27 @@
+Go binding for UUID
+===================
+
+This package contains a binding for the `libuuid` (http://linux.die.net/man/3/libuuid).
+
+Installation
+------------
+
+	$ git clone git://github.com/nu7hatch/gouuid.git
+	$ cd gouuid
+	$ make install
+
+Usage
+-----
+
+	package main
+
+	import "crypto/uuid"
+
+	func main() {
+		 uuidStr := uuid.GenerateRand()
+		 println(uuidStr)
+	}
+
+Copyright
+---------
+Copyright (C) 2011 by Krzysztof Kowalik <chris@nu7hat.ch>
