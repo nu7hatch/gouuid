@@ -1,7 +1,8 @@
 Go binding for UUID
 ===================
 
-This package contains a binding for the `libuuid` (http://linux.die.net/man/3/libuuid).
+This package contains a binding for the `libuuid` -
+http://linux.die.net/man/3/libuuid
 
 Installation
 ------------
