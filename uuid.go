@@ -5,7 +5,7 @@
 package uuid
 
 //#include <stdlib.h>
-//#include <uuid.h>
+//#include <uuid/uuid.h>
 import "C"
 
 const (
