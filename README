@@ -1,8 +1,12 @@
 Go binding for UUID
 ===================
 
-This package contains a binding for the `libuuid` -
-http://linux.die.net/man/3/libuuid
+This package provides immutable UUID structs and the functions
+NewV3, NewV4, NewV5 and Parse() for generating versions 3, 4
+and 5 UUIDs as specified in RFC 4122.
+
+If all you want is a unique ID, you should probably call NewV4
+which creates a random UUID.
 
 Installation
 ------------
@@ -16,7 +20,6 @@ Use the `goinstall` tool:
 	$ cd gouuid
 	$ make install
 
-
 Usage
 -----
 
@@ -25,8 +28,14 @@ Usage
 	import uuid "github.com/nu7hatch/uuid"
 
 	func main() {
-		 uuidStr := uuid.GenerateRand()
-		 println(uuidStr)
+	    // generating v4
+	    u4, _ := uuid.NewV4()
+	
+	    // generating v5 (or v3...)
+	    u5, _ := uuid.NewV5(uuid.NamespaceURL, "nu7hat.ch")
+ 	
+	    // parsing
+	    u, _ := uuid.ParseString("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 	}
 
 Copyright
