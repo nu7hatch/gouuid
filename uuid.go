@@ -18,7 +18,7 @@ const (
 	ReservedNCS       byte = 0x80
 	ReservedRFC4122   byte = 0x40
 	ReservedMicrosoft byte = 0x20
-	ReservedFuture    byte = 4
+	ReservedFuture    byte = 0x00
 )
 
 // The following standard UUIDs are for use with NewV3() or NewV5().
