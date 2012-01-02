@@ -5,9 +5,6 @@ This package provides immutable UUID structs and the functions
 NewV3, NewV4, NewV5 and Parse() for generating versions 3, 4
 and 5 UUIDs as specified in RFC 4122.
 
-If all you want is a unique ID, you should probably call NewV4
-which creates a random UUID.
-
 Installation
 ------------
 Use the `goinstall` tool:
@@ -25,7 +22,7 @@ Usage
 
 	package main
 
-	import uuid "github.com/nu7hatch/uuid"
+	import uuid "github.com/nu7hatch/gouuid"
 
 	func main() {
 	    // generating v4
