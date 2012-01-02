@@ -1,5 +1,6 @@
-// This package contains a binding for the `libuuid` - 
-// http://linux.die.net/man/3/libuuid.
+// This package provides immutable UUID structs and the functions
+// NewV3, NewV4, NewV5 and Parse() for generating versions 3, 4
+// and 5 UUIDs as specified in RFC 4122.
 //
 // Copyright (C) 2011 by Krzysztof Kowalik <chris@nu7hat.ch>
 package uuid

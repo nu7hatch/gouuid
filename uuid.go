@@ -2,9 +2,6 @@
 // NewV3, NewV4, NewV5 and Parse() for generating versions 3, 4
 // and 5 UUIDs as specified in RFC 4122.
 //
-// If all you want is a unique ID, you should probably call NewV4
-// which creates a random UUID.
-//
 // Copyright (C) 2011 by Krzysztof Kowalik <chris@nu7hat.ch>
 package uuid
 
