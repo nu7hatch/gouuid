@@ -1,5 +1,5 @@
-Go binding for UUID
-===================
+Pure Go UUID implementation
+===========================
 
 This package provides immutable UUID structs and the functions
 NewV3, NewV4, NewV5 and Parse() for generating versions 3, 4
