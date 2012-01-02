@@ -9,7 +9,13 @@
 package uuid
 
 import (
+	"errors"
 	"crypto/rand"
+	"crypto/md5"
+	"crypto/sha1"
+	"encoding/hex"
+	"regexp"
+	"hash"
 	"fmt"
 )
 
@@ -23,28 +29,70 @@ const (
 
 // The following standard UUIDs are for use with NewV3() or NewV5().
 var (
-	NamespaceDNS, _  = ParseString("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
-	NamespaceURL, _  = ParseString("6ba7b811-9dad-11d1-80b4-00c04fd430c8")
-	NamespaceOID, _  = ParseString("6ba7b812-9dad-11d1-80b4-00c04fd430c8")
-	NamespaceX500, _ = ParseString("6ba7b814-9dad-11d1-80b4-00c04fd430c8")	
+	NamespaceDNS, _  = ParseHex("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
+	NamespaceURL, _  = ParseHex("6ba7b811-9dad-11d1-80b4-00c04fd430c8")
+	NamespaceOID, _  = ParseHex("6ba7b812-9dad-11d1-80b4-00c04fd430c8")
+	NamespaceX500, _ = ParseHex("6ba7b814-9dad-11d1-80b4-00c04fd430c8")	
 )
 
+// Pattern used to parse hex string representation of the UUID.
+// FIXME: do something to consider both brackets at one time,
+// current one allows to parse string with only one opening
+// or closing bracket.
+const hexPattern =
+	"^(urn\\:uuid\\:)?\\{?([a-z0-9]{8})-([a-z0-9]{4})-" +
+	"([1-5][a-z0-9]{3})-([a-z0-9]{4})-([a-z0-9]{12})\\}?$"
+
+// A UUID representation copmliant with specification in
+// RFC 4122 document.
 type UUID [16]byte
 
-// ParseString creates a UUID object from given string.
-func ParseString(s string) (u *UUID, err error) {
-	return
+// ParseHex creates a UUID object from given hex string
+// representation. Function accepts UUID string in following
+// formats:
+//
+//     uuid.ParseHex("6ba7b814-9dad-11d1-80b4-00c04fd430c8")
+//     uuid.ParseHex("{6ba7b814-9dad-11d1-80b4-00c04fd430c8}")
+//     uuid.ParseHex("urn:uuid:6ba7b814-9dad-11d1-80b4-00c04fd430c8")
+//
+func ParseHex(s string) (u *UUID, err error) {
+	re := regexp.MustCompile(hexPattern)
+	md := re.FindStringSubmatch(s)
+	if md == nil {
+		err = errors.New("Invalid UUID string")
+		return
+	}
+	hash := md[2] + md[3] + md[4] + md[5] + md[6]
+	b, err := hex.DecodeString(hash)
+	if err != nil {
+		return
+	}
+	u = new(UUID)
+	copy(u[:], b)
+	return 
 }
 
 // Parse creates a UUID object from given bytes slice.
 func Parse(b []byte) (u *UUID, err error) {
+	if len(b) != 16 {
+		err = errors.New("Given slice is not valid UUID sequence")
+		return 
+	}
+	u = new(UUID)
+	copy(u[:], b)
 	return
 }
 
 // Generate a UUID based on the MD5 hash of a namespace identifier
 // and a name.
-func NewV3(ns *UUID, name string) (u *UUID, err error) {
+func NewV3(ns *UUID, name []byte) (u *UUID, err error) {
+	if ns == nil {
+		err = errors.New("Invalid namespace UUID")
+		return
+	}
 	u = new(UUID)
+	// Set all bits to MD5 hash generated from namespace and name.
+	u.generateFromHash(md5.New(), ns[:], name)
 	u.setVariant(ReservedRFC4122)
 	u.setVersion(3)
 	return
@@ -65,11 +113,22 @@ func NewV4() (u *UUID, err error) {
 
 // Generate a UUID based on the SHA-1 hash of a namespace identifier
 // and a name.
-func NewV5(ns *UUID, name string) (u *UUID, err error) {
+func NewV5(ns *UUID, name []byte) (u *UUID, err error) {
 	u = new(UUID)
+	// Set all bits to truncated SHA1 hash generated from namespace
+	// and name.
+	u.generateFromHash(sha1.New(), ns[:], name)
 	u.setVariant(ReservedRFC4122)
 	u.setVersion(5)
 	return
+}
+
+// Generate a MD5 hash of a namespace and a name, and copy it to the
+// UUID slice.
+func (u *UUID) generateFromHash(hash hash.Hash, ns, name []byte) {
+	hash.Write(ns[:])
+	hash.Write(name)
+	copy(u[:], hash.Sum([]byte{})[:16])
 }
 
 // Set the two most significant bits (bits 6 and 7) of the
@@ -102,7 +161,7 @@ func (u *UUID) Variant() byte {
 // Set the four most significant bits (bits 12 through 15) of the
 // time_hi_and_version field to the 4-bit version number.
 func (u *UUID) setVersion(v byte) {
-	u[6] = (u[6] & 0xF) | 0x40
+	u[6] = (u[6] & 0xF) | (v << 4)
 }
 
 // Version returns a version number of the algorithm used to

@@ -35,7 +35,7 @@ Usage
 	    u5, _ := uuid.NewV5(uuid.NamespaceURL, "nu7hat.ch")
  	
 	    // parsing
-	    u, _ := uuid.ParseString("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
+	    u, _ := uuid.ParseHex("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 	}
 
 Copyright
