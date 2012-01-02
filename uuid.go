@@ -89,7 +89,7 @@ func NewV3(ns *UUID, name []byte) (u *UUID, err error) {
 	}
 	u = new(UUID)
 	// Set all bits to MD5 hash generated from namespace and name.
-	u.generateFromHash(md5.New(), ns[:], name)
+	u.setBytesFromHash(md5.New(), ns[:], name)
 	u.setVariant(ReservedRFC4122)
 	u.setVersion(3)
 	return
@@ -114,7 +114,7 @@ func NewV5(ns *UUID, name []byte) (u *UUID, err error) {
 	u = new(UUID)
 	// Set all bits to truncated SHA1 hash generated from namespace
 	// and name.
-	u.generateFromHash(sha1.New(), ns[:], name)
+	u.setBytesFromHash(sha1.New(), ns[:], name)
 	u.setVariant(ReservedRFC4122)
 	u.setVersion(5)
 	return
@@ -122,7 +122,7 @@ func NewV5(ns *UUID, name []byte) (u *UUID, err error) {
 
 // Generate a MD5 hash of a namespace and a name, and copy it to the
 // UUID slice.
-func (u *UUID) generateFromHash(hash hash.Hash, ns, name []byte) {
+func (u *UUID) setBytesFromHash(hash hash.Hash, ns, name []byte) {
 	hash.Write(ns[:])
 	hash.Write(name)
 	copy(u[:], hash.Sum([]byte{})[:16])
