@@ -13,7 +13,7 @@ import (
 const format = "^[a-z0-9]{8}-[a-z0-9]{4}-[1-5][a-z0-9]{3}-[a-z0-9]{4}-[a-z0-9]{12}$"
 
 func TestParse(t *testing.T) {
-	_, err := Parse([]byte{1,2,3,4,5})
+	_, err := Parse([]byte{1, 2, 3, 4, 5})
 	if err == nil {
 		t.Errorf("Expected error due to invalid UUID sequence")
 	}
