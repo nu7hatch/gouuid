@@ -133,25 +133,37 @@ func (u *UUID) setBytesFromHash(hash hash.Hash, ns, name []byte) {
 func (u *UUID) setVariant(v byte) {
 	switch v {
 	case ReservedNCS:
-		u[8] = (u[8] | ReservedNCS) & 0xBF
+		// unset bit 7
+		u[8] &= ^byte(0x80)
 	case ReservedRFC4122:
-		u[8] = (u[8] | ReservedRFC4122) & 0x7F
+		// set bit 7
+		u[8] |= 0x80
+		// unset bit 6
+		u[8] &= ^byte(0x40)
 	case ReservedMicrosoft:
-		u[8] = (u[8] | ReservedMicrosoft) & 0x3F
+		// set bits 6 & 7
+		u[8] |= 0x80 | 0x40
+		// unset bit 5
+		u[8] &= ^byte(0x20)
 	}
 }
 
 // Variant returns the UUID Variant, which determines the internal
 // layout of the UUID. This will be one of the constants: RESERVED_NCS,
 // RFC_4122, RESERVED_MICROSOFT, RESERVED_FUTURE.
+// See rfc4122 section 4.1.1: http://www.ietf.org/rfc/rfc4122.txt
 func (u *UUID) Variant() byte {
-	if u[8] & ReservedNCS == ReservedNCS {
+	if u[8] & 0x80 == 0 {
+		// 0 x x
 		return ReservedNCS
-	} else if u[8] & ReservedRFC4122 == ReservedRFC4122 {
+	} else if u[8] & 0x40 == 0 {
+		// 1 0 x
 		return ReservedRFC4122
-	} else if u[8] & ReservedMicrosoft == ReservedMicrosoft {
+	} else if u[8] & 0x20 == 0 {
+		// 1 1 x
 		return ReservedMicrosoft
-	} 
+	}
+	// 1 1 1
 	return ReservedFuture
 }
 
