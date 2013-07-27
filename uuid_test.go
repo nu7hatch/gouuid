@@ -141,3 +141,22 @@ func TestJsonMarshal(t *testing.T) {
 		t.Errorf("Expected json '%v', given '%v'", expected, string(data))
 	}
 }
+
+func TestJsonUnmarshal(t *testing.T) {
+	s := "819c4ff4-31b4-4519-5d24-3c4a129b8649"
+
+	data := []byte("{\"Id\":\"" + s + "\"}")
+	v := struct {
+		Id UUID
+	}{}
+
+	err := json.Unmarshal(data, &v)
+	if err != nil {
+		t.Errorf("Unexpected error when unmarshalling: %v", err)
+	}
+
+	if v.Id.String() != s {
+		t.Errorf("Expected '%v', give '%v'", s, v.Id.String())
+	}
+
+}
