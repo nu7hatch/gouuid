@@ -16,7 +16,7 @@ import (
 	"regexp"
 )
 
-// The UUID reserved variants. 
+// The UUID reserved variants.
 const (
 	ReservedNCS       byte = 0x80
 	ReservedRFC4122   byte = 0x40
@@ -169,4 +169,29 @@ func (u *UUID) Version() uint {
 // Returns unparsed version of the generated UUID sequence.
 func (u *UUID) String() string {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", u[0:4], u[4:6], u[6:8], u[8:10], u[10:])
+}
+
+// MarshalJSON turns UUID into a json.Marshaller.
+func (id UUID) MarshalJSON() ([]byte, error) {
+	// Pack the string representation in quotes
+	return []byte(fmt.Sprintf(`"%v"`, id.String())), nil
+}
+
+// UnmarshalJSON turns *UUID into a json.Unmarshaller.
+func (id *UUID) UnmarshalJSON(data []byte) error {
+	// Data is expected to be a json string, like: "819c4ff4-31b4-4519-5d24-3c4a129b8649"
+	if len(data) < 2 || data[0] != '"' || data[len(data)-1] != '"' {
+		return errors.New(fmt.Sprintf("Invalid UUID in JSON, %v is not a valid JSON string", string(data)))
+	}
+
+	// Grab string value without the surrounding " characters
+	value := string(data[1 : len(data)-1])
+	parsed, err := ParseHex(value)
+	if err != nil {
+		return errors.New(fmt.Sprintf("Invalid UUID in JSON, %v: %v", value, err))
+	}
+
+	// Dereference pointer value and store parsed
+	*id = *parsed
+	return nil
 }

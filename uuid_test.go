@@ -6,6 +6,7 @@
 package uuid
 
 import (
+	"encoding/json"
 	"regexp"
 	"testing"
 )
@@ -120,4 +121,42 @@ func TestNewV5(t *testing.T) {
 	if u4.String() == u.String() {
 		t.Errorf("Expected UUIDs generated of the same namespace and different names to be different")
 	}
+}
+
+func TestJsonMarshal(t *testing.T) {
+	id, err := ParseHex("819c4ff4-31b4-4519-5d24-3c4a129b8649")
+	if err != nil {
+		t.Fatalf("Unable to parse hard coded UUID value: %v", err)
+	}
+
+	doc := make(map[string]interface{})
+	doc["Id"] = id
+
+	data, err := json.Marshal(doc)
+	if err != nil {
+		t.Errorf("Error while marshalling to json: %v", err)
+	}
+
+	if expected := "{\"Id\":\"819c4ff4-31b4-4519-5d24-3c4a129b8649\"}"; expected != string(data) {
+		t.Errorf("Expected json '%v', given '%v'", expected, string(data))
+	}
+}
+
+func TestJsonUnmarshal(t *testing.T) {
+	s := "819c4ff4-31b4-4519-5d24-3c4a129b8649"
+
+	data := []byte("{\"Id\":\"" + s + "\"}")
+	v := struct {
+		Id UUID
+	}{}
+
+	err := json.Unmarshal(data, &v)
+	if err != nil {
+		t.Errorf("Unexpected error when unmarshalling: %v", err)
+	}
+
+	if v.Id.String() != s {
+		t.Errorf("Expected '%v', give '%v'", s, v.Id.String())
+	}
+
 }
