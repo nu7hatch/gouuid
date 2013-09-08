@@ -39,7 +39,7 @@ var (
 const hexPattern = "^(urn\\:uuid\\:)?\\{?([a-z0-9]{8})-([a-z0-9]{4})-" +
 	"([1-5][a-z0-9]{3})-([a-z0-9]{4})-([a-z0-9]{12})\\}?$"
 
-// A UUID representation copmliant with specification in
+// A UUID representation compliant with specification in
 // RFC 4122 document.
 type UUID [16]byte
 
