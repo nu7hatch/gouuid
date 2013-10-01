@@ -26,6 +26,7 @@ const (
 
 // The following standard UUIDs are for use with NewV3() or NewV5().
 var (
+	hexRegExp = regexp.MustCompile(hexPattern)
 	NamespaceDNS, _  = ParseHex("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 	NamespaceURL, _  = ParseHex("6ba7b811-9dad-11d1-80b4-00c04fd430c8")
 	NamespaceOID, _  = ParseHex("6ba7b812-9dad-11d1-80b4-00c04fd430c8")
@@ -52,8 +53,7 @@ type UUID [16]byte
 //     uuid.ParseHex("urn:uuid:6ba7b814-9dad-11d1-80b4-00c04fd430c8")
 //
 func ParseHex(s string) (u *UUID, err error) {
-	re := regexp.MustCompile(hexPattern)
-	md := re.FindStringSubmatch(s)
+	md := hexRegExp.FindStringSubmatch(s)
 	if md == nil {
 		err = errors.New("Invalid UUID string")
 		return

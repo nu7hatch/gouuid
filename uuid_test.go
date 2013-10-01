@@ -42,6 +42,21 @@ func TestParseString(t *testing.T) {
 	if u.String() != base.String() {
 		t.Errorf("Expected parsed UUID to be the same as base, %s != %s", u.String(), base.String())
 	}
+	raw := "6ba7b814-9dad-11d1-80b4-00c04fd430c8"
+	u2, err := ParseHex("{" + raw + "}")
+	if err != nil {
+		t.Errorf("Expected to parse UUID sequence with brackets without problems")
+	}
+	if (u2.String() != raw) {
+		t.Errorf("Expected output to match the UUID input without brackets")
+	}
+	u3, err := ParseHex("urn:uuid:" + raw)
+	if err != nil {
+		t.Errorf("Expected to parse UUID sequence with 'urn:uuid:' prefix without problems")
+	}
+	if (u3.String() != raw) {
+		t.Errorf("Expected output to match the UUID input without any prefix")
+	}
 }
 
 func TestNewV3(t *testing.T) {
@@ -119,5 +134,12 @@ func TestNewV5(t *testing.T) {
 	u4, _ := NewV5(NamespaceURL, []byte("code.google.com"))
 	if u4.String() == u.String() {
 		t.Errorf("Expected UUIDs generated of the same namespace and different names to be different")
+	}
+}
+
+func BenchmarkParseHex(b *testing.B) {
+	for i:=0; i < b.N; i++ {
+		u, _ := NewV4()
+		ParseHex(u.String())
 	}
 }
