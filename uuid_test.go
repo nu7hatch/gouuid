@@ -57,6 +57,14 @@ func TestParseString(t *testing.T) {
 	if (u3.String() != raw) {
 		t.Errorf("Expected output to match the UUID input without any prefix")
 	}
+	_, err = ParseHex("{" + raw )
+	if err == nil {
+		t.Errorf("Expected error due to unbalanced opening bracket.")
+	}
+	_, err = ParseHex(raw + "}")
+	if err == nil {
+		t.Errorf("Expected error due to unbalanced closing bracket.")
+	}
 }
 
 func TestNewV3(t *testing.T) {
