@@ -13,7 +13,7 @@ import (
 	"errors"
 	"fmt"
 	"hash"
-	"regexp"
+	"strings"
 )
 
 // The UUID reserved variants. 
@@ -22,6 +22,8 @@ const (
 	ReservedRFC4122   byte = 0x40
 	ReservedMicrosoft byte = 0x20
 	ReservedFuture    byte = 0x00
+	urnUuidPrefix	string = "urn:uuid:"
+	dash			byte = byte('-')
 )
 
 // The following standard UUIDs are for use with NewV3() or NewV5().
@@ -31,13 +33,6 @@ var (
 	NamespaceOID, _  = ParseHex("6ba7b812-9dad-11d1-80b4-00c04fd430c8")
 	NamespaceX500, _ = ParseHex("6ba7b814-9dad-11d1-80b4-00c04fd430c8")
 )
-
-// Pattern used to parse hex string representation of the UUID.
-// FIXME: do something to consider both brackets at one time,
-// current one allows to parse string with only one opening
-// or closing bracket.
-const hexPattern = "^(urn\\:uuid\\:)?\\{?([a-z0-9]{8})-([a-z0-9]{4})-" +
-	"([1-5][a-z0-9]{3})-([a-z0-9]{4})-([a-z0-9]{12})\\}?$"
 
 // A UUID representation copmliant with specification in
 // RFC 4122 document.
@@ -52,19 +47,51 @@ type UUID [16]byte
 //     uuid.ParseHex("urn:uuid:6ba7b814-9dad-11d1-80b4-00c04fd430c8")
 //
 func ParseHex(s string) (u *UUID, err error) {
-	re := regexp.MustCompile(hexPattern)
-	md := re.FindStringSubmatch(s)
-	if md == nil {
+	if strings.HasPrefix(s, urnUuidPrefix) {
+		s = s[len(urnUuidPrefix):]
+	}
+	if strings.HasPrefix(s, "{") {
+		if !strings.HasSuffix(s, "}") {
+			err = errors.New("Invalid UUID string has an opening '{' bracket but no closing '}' bracket")
+			return
+		} else if len(s) != 38 {
+			err = errors.New("Invalid UUID string")
+			return
+		}
+		s = s[1:37]
+	} else if strings.HasSuffix(s, "}") {
+		err = errors.New("Invalid UUID string has no opening '{' bracket but does have a closing '}' bracket")
+		return
+	} else if (len(s) != 36) {
 		err = errors.New("Invalid UUID string")
 		return
 	}
-	hash := md[2] + md[3] + md[4] + md[5] + md[6]
-	b, err := hex.DecodeString(hash)
-	if err != nil {
-		return
-	}
+	var a, b byte
+	var half bool
 	u = new(UUID)
-	copy(u[:], b)
+	v := u[0:0]
+	for i, c := range []byte(s) {
+		if (i == 8 || i == 13 || i == 18 || i == 23) {
+			if (c != dash) {
+				return nil, errors.New("Invalid UUID string had an improper character where '-' expected")
+			}
+			continue
+		}
+		switch {
+		case '0' <= c && c <= '9':
+			b = c - '0'
+		case 'a' <= c && c <= 'f':
+			b = c - 'a' + 10
+		default:
+			return nil, hex.InvalidByteError(i)
+		}
+		if half {
+			v = append(v, (a << 4) | b)
+		} else {
+			a = b
+		}
+		half = !half
+	}
 	return
 }
 
