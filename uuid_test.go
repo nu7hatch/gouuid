@@ -6,11 +6,17 @@
 package uuid
 
 import (
+	"bytes"
+	"encoding/json"
 	"regexp"
 	"testing"
 )
 
 const format = "^[a-z0-9]{8}-[a-z0-9]{4}-[1-5][a-z0-9]{3}-[a-z0-9]{4}-[a-z0-9]{12}$"
+
+type TestJSONStruct struct {
+	Id *UUID `json:"id"`
+}
 
 func TestParse(t *testing.T) {
 	_, err := Parse([]byte{1, 2, 3, 4, 5})
@@ -28,7 +34,21 @@ func TestParse(t *testing.T) {
 	}
 }
 
-func TestParseString(t *testing.T) {
+func TestParseUppercaseString(t *testing.T) {
+	base := "2945C7FD-DFB3-435F-9473-990ED233DCE5"
+	u, err := ParseHex(base)
+	if err != nil {
+		t.Errorf("Expected to parse UUID %s sequence without problems", base)
+		return
+	}
+
+	if u.String() != "2945c7fd-dfb3-435f-9473-990ed233dce5" {
+		t.Errorf("Expected parsed UUID to be the same as base (not case sensitive), %s != %s", u.String(), base)
+		return
+	}
+}
+
+func TestParseStringInUpperCase(t *testing.T) {
 	_, err := ParseHex("foo")
 	if err == nil {
 		t.Errorf("Expected error due to invalid UUID string")
@@ -119,5 +139,36 @@ func TestNewV5(t *testing.T) {
 	u4, _ := NewV5(NamespaceURL, []byte("code.google.com"))
 	if u4.String() == u.String() {
 		t.Errorf("Expected UUIDs generated of the same namespace and different names to be different")
+	}
+}
+
+func TestMarshalJson(t *testing.T) {
+	s := new(TestJSONStruct)
+	s.Id, _ = ParseHex("2945c7fd-dfb3-435f-9473-990ed233dce5")
+
+	res, err := json.Marshal(s)
+	if err != nil {
+		t.Errorf("Expected to marshal UUID to JSON without problems, error thrown: %d", err.Error())
+		return
+	}
+	if !bytes.Equal(res, []byte(`{"id":"2945c7fd-dfb3-435f-9473-990ed233dce5"}`)) {
+		t.Errorf("Expected {\"id\":\"2945c7fd-dfb3-435f-9473-990ed233dce5\"} but got %s", string(res))
+		return
+	}
+}
+
+func TestUnmarshalJson(t *testing.T) {
+	input := []byte(`{"id":"2945c7fd-dfb3-435f-9473-990ed233dce5"}`)
+	expected_uuid := "2945c7fd-dfb3-435f-9473-990ed233dce5"
+
+	res := new(TestJSONStruct)
+	err := json.Unmarshal(input, &res)
+	if err != nil {
+		t.Errorf("Expected to marshal UUID to JSON without problems, error thrown: %d", err.Error())
+		return
+	}
+
+	if res.Id.String() != expected_uuid {
+		t.Errorf("Expected parsed UUID to be the same as base, %s != %s", res.Id.String(), expected_uuid)
 	}
 }

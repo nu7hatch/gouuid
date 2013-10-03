@@ -10,13 +10,15 @@ import (
 	"crypto/rand"
 	"crypto/sha1"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"hash"
 	"regexp"
+	"strings"
 )
 
-// The UUID reserved variants. 
+// The UUID reserved variants.
 const (
 	ReservedNCS       byte = 0x80
 	ReservedRFC4122   byte = 0x40
@@ -53,9 +55,9 @@ type UUID [16]byte
 //
 func ParseHex(s string) (u *UUID, err error) {
 	re := regexp.MustCompile(hexPattern)
-	md := re.FindStringSubmatch(s)
+	md := re.FindStringSubmatch(strings.ToLower(s))
 	if md == nil {
-		err = errors.New("Invalid UUID string")
+		err = errors.New("Invalid UUID string " + s)
 		return
 	}
 	hash := md[2] + md[3] + md[4] + md[5] + md[6]
@@ -169,4 +171,31 @@ func (u *UUID) Version() uint {
 // Returns unparsed version of the generated UUID sequence.
 func (u *UUID) String() string {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", u[0:4], u[4:6], u[6:8], u[8:10], u[10:])
+}
+
+// Marshal UUID to JSON
+func (u UUID) MarshalJSON() ([]byte, error) {
+	return json.Marshal(u.String())
+}
+
+// Unmarshal UUID from JSON
+func (u *UUID) UnmarshalJSON(data []byte) error {
+	var uuid_as_string string
+
+	if u == nil {
+		u = new(UUID)
+	}
+
+	if err := json.Unmarshal(data, &uuid_as_string); err != nil {
+		return err
+	}
+
+	parsed_uuid, err := ParseHex(uuid_as_string)
+	if err != nil {
+		return err
+	}
+
+	*u = *parsed_uuid
+
+	return nil
 }
