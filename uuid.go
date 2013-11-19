@@ -6,7 +6,6 @@
 package uuid
 
 import (
-	"bytes"
 	"crypto/md5"
 	"crypto/rand"
 	"crypto/sha1"
@@ -171,22 +170,4 @@ func (u UUID) Version() uint {
 // Returns unparsed version of the generated UUID sequence.
 func (u UUID) String() string {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", u[0:4], u[4:6], u[6:8], u[8:10], u[10:])
-}
-
-// Returns JSON valid representation of a uuid
-func (u UUID) MarshalJSON() ([]byte, error) {
-	var buffer bytes.Buffer
-	buffer.WriteString("\"")
-	buffer.WriteString(t.String())
-	buffer.WriteString("\"")
-	return []byte(buffer.String()), nil
-}
-
-// Parses a JSON representation of a uuid
-func (u *UUID) UnmarshalJSON(bytes []byte) error {
-	p, err := ParseHex(string(bytes))
-	if err == nil {
-		copy(t[:], p[:])
-	}
-	return err
 }
