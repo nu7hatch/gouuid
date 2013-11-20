@@ -16,12 +16,18 @@ import (
 	"regexp"
 )
 
-// The UUID reserved variants. 
+// The UUID reserved variants.
 const (
-	ReservedNCS       byte = 0x80
-	ReservedRFC4122   byte = 0x40
-	ReservedMicrosoft byte = 0x20
-	ReservedFuture    byte = 0x00
+	ReservedNCS       byte = 0x00
+	ReservedRFC4122   byte = 0x80
+	ReservedMicrosoft byte = 0xC0
+	ReservedFuture    byte = 0xE0
+)
+
+const (
+	ReservedNCSMask       byte = 0x80
+	ReservedRFC4122Mask   byte = 0xC0
+	ReservedMicrosoftMask byte = 0xE0
 )
 
 // The following standard UUIDs are for use with NewV3() or NewV5().
@@ -132,11 +138,11 @@ func (u *UUID) setBytesFromHash(hash hash.Hash, ns, name []byte) {
 func (u *UUID) setVariant(v byte) {
 	switch v {
 	case ReservedNCS:
-		u[8] = (u[8] | ReservedNCS) & 0xBF
+		u[8] = (u[8] &^ ReservedNCSMask) | ReservedNCS
 	case ReservedRFC4122:
-		u[8] = (u[8] | ReservedRFC4122) & 0x7F
+		u[8] = (u[8] &^ ReservedRFC4122Mask) | ReservedRFC4122
 	case ReservedMicrosoft:
-		u[8] = (u[8] | ReservedMicrosoft) & 0x3F
+		u[8] = (u[8] &^ ReservedMicrosoftMask) | ReservedMicrosoft
 	}
 }
 
@@ -144,11 +150,11 @@ func (u *UUID) setVariant(v byte) {
 // layout of the UUID. This will be one of the constants: RESERVED_NCS,
 // RFC_4122, RESERVED_MICROSOFT, RESERVED_FUTURE.
 func (u *UUID) Variant() byte {
-	if u[8]&ReservedNCS == ReservedNCS {
+	if u[8]&ReservedNCSMask == ReservedNCS {
 		return ReservedNCS
-	} else if u[8]&ReservedRFC4122 == ReservedRFC4122 {
+	} else if u[8]&ReservedRFC4122Mask == ReservedRFC4122 {
 		return ReservedRFC4122
-	} else if u[8]&ReservedMicrosoft == ReservedMicrosoft {
+	} else if u[8]&ReservedMicrosoftMask == ReservedMicrosoft {
 		return ReservedMicrosoft
 	}
 	return ReservedFuture
