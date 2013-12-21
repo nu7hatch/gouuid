@@ -16,7 +16,7 @@ import (
 	"regexp"
 )
 
-// The UUID reserved variants. 
+// The UUID reserved variants.
 const (
 	ReservedNCS       byte = 0x80
 	ReservedRFC4122   byte = 0x40
@@ -87,6 +87,7 @@ func NewV3(ns *UUID, name []byte) (u *UUID, err error) {
 		err = errors.New("Invalid namespace UUID")
 		return
 	}
+
 	u = new(UUID)
 	// Set all bits to MD5 hash generated from namespace and name.
 	u.setBytesFromHash(md5.New(), ns[:], name)
@@ -144,7 +145,7 @@ func (u *UUID) setVariant(v byte) {
 // Variant returns the UUID Variant, which determines the internal
 // layout of the UUID. This will be one of the constants: RESERVED_NCS,
 // RFC_4122, RESERVED_MICROSOFT, RESERVED_FUTURE.
-func (u *UUID) Variant() byte {
+func (u UUID) Variant() byte {
 	if u[8]&ReservedNCS == ReservedNCS {
 		return ReservedNCS
 	} else if u[8]&ReservedRFC4122 == ReservedRFC4122 {
@@ -163,11 +164,11 @@ func (u *UUID) setVersion(v byte) {
 
 // Version returns a version number of the algorithm used to
 // generate the UUID sequence.
-func (u *UUID) Version() uint {
+func (u UUID) Version() uint {
 	return uint(u[6] >> 4)
 }
 
 // Returns unparsed version of the generated UUID sequence.
-func (u *UUID) String() string {
+func (u UUID) String() string {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", u[0:4], u[4:6], u[6:8], u[8:10], u[10:])
 }
