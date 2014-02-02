@@ -21,6 +21,7 @@ func ExampleNewV5() {
 		return
 	}
 	fmt.Println(u5)
+	// Output: 4443f977-ae75-5388-759f-93c0e0300805
 }
 
 func ExampleParseHex() {
@@ -30,4 +31,5 @@ func ExampleParseHex() {
 		return
 	}
 	fmt.Println(u)
+	// Output: 6ba7b810-9dad-11d1-80b4-00c04fd430c8
 }
