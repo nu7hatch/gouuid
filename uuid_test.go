@@ -118,12 +118,12 @@ func t_VersionConstraints(v int, u *UUID, t *testing.T) {
 }
 
 func TestUUID_ParseString(t *testing.T) {
-	_, err := ParseHex("foo")
+	_, err := Parse("foo")
 	if err == nil {
 		t.Errorf("Expected error due to invalid UUID string")
 	}
 	base, _ := NewV4()
-	u, err := ParseHex(base.String())
+	u, err := Parse(base.String())
 	if err != nil {
 		t.Errorf("Expected to parse UUID sequence without problems")
 		return
@@ -161,15 +161,15 @@ var (
 }
 )
 
-func TestUUID_ParseHex(t *testing.T) {
+func TestUUID_Parse(t *testing.T) {
 	for _, v := range invalidHexStrings {
-		_, err := ParseHex(v)
+		_, err := Parse(v)
 		if err == nil {
 			t.Errorf("Expected error due to invalid UUID string %s", v)
 		}
 	}
 	for _, v := range validHexStrings {
-		_, err := ParseHex(v)
+		_, err := Parse(v)
 		if err != nil {
 			t.Errorf("Expected valid UUID string %s but got error", v)
 		}
@@ -257,7 +257,7 @@ func TestNewV5(t *testing.T) {
 func BenchmarkParseHex(b *testing.B) {
 	s := "f3593cff-ee92-40df-4086-87825b523f13"
 	for i := 0; i < b.N; i++ {
-		_, err := ParseHex(s)
+		_, err := Parse(s)
 		if err != nil {
 			b.Fatal(err)
 		}
