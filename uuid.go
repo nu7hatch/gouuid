@@ -14,7 +14,6 @@ import (
 	"fmt"
 	"hash"
 	"regexp"
-	"io"
 )
 
 // The UUID reserved variants.
@@ -71,6 +70,13 @@ func (u *UUID) setVariant(v byte) {
 	u[variantIndex] |= v
 }
 
+// Set the three most significant bits (bits 0, 1 and 2) of the
+// clock_seq_hi_and_reserved to variant mask v.
+func (u *UUID) setRFC4122Variant() {
+	u[variantIndex] &= 0x3F
+	u[variantIndex] |= ReservedRFC4122
+}
+
 // Variant returns the UUID Variant, which determines the internal
 // layout of the UUID. This will be one of the constants: RESERVED_NCS,
 // RFC_4122, RESERVED_MICROSOFT, RESERVED_FUTURE.
@@ -121,15 +127,15 @@ func (u *UUID) MarshalBinary() (data []byte, err error) {
 	return u[:], nil
 }
 
-// Parse creates a UUID object from given hex string
+// ParseHex creates a UUID object from given hex string
 // representation. Function accepts UUID string in following
 // formats:
 //
-//     gouuid.Parse("6ba7b814-9dad-11d1-80b4-00c04fd430c8")
-//     gouuid.Parse("{6ba7b814-9dad-11d1-80b4-00c04fd430c8}")
-//     gouuid.Parse("urn:uuid:6ba7b814-9dad-11d1-80b4-00c04fd430c8")
+//     gouuid.ParseHex("6ba7b814-9dad-11d1-80b4-00c04fd430c8")
+//     gouuid.ParseHex("{6ba7b814-9dad-11d1-80b4-00c04fd430c8}")
+//     gouuid.ParseHex("urn:uuid:6ba7b814-9dad-11d1-80b4-00c04fd430c8")
 //
-func Parse(s string) (u *UUID, err error) {
+func ParseHex(s string) (u *UUID, err error) {
 	md := reg.FindStringSubmatch(s)
 	if md == nil {
 		err = errors.New("Parse: invalid UUID string")
@@ -165,13 +171,13 @@ func New(data []byte) (u *UUID, err error) {
 
 // Generate a UUID based on the MD5 hash of a namespace identifier
 // and a name.
-func NewV3(ns UUID, name string) (u *UUID, err error) {
+func NewV3(ns UUID, name []byte) (u *UUID, err error) {
 	// Set all bits to MD5 hash generated from namespace and name.
 	u, err = New(sum(md5.New(), ns, name))
 	if err != nil {
 		return
 	}
-	u.setVariant(ReservedRFC4122)
+	u.setRFC4122Variant()
 	u.setVersion(3)
 	return
 }
@@ -184,29 +190,29 @@ func NewV4() (u *UUID, err error) {
 	if err != nil {
 		panic(err)
 	}
-	u.setVariant(ReservedRFC4122)
+	u.setRFC4122Variant()
 	u.setVersion(4)
 	return
 }
 
 // Generate a UUID based on the SHA-1 hash of a namespace identifier
 // and a name.
-func NewV5(ns UUID, name string) (u *UUID, err error) {
+func NewV5(ns UUID, name []byte) (u *UUID, err error) {
 	// Set all bits to truncated SHA1 hash generated from namespace
 	// and name.
 	u, err = New(sum(sha1.New(), ns, name))
 	if err != nil {
 		return
 	}
-	u.setVariant(ReservedRFC4122)
+	u.setRFC4122Variant()
 	u.setVersion(5)
 	return
 }
 
 // Generate a check sum hash of a namespace and a name, and copy it to the
 // UUID slice.
-func sum(h hash.Hash, ns UUID, name string) []byte {
+func sum(h hash.Hash, ns UUID, name []byte) []byte {
 	h.Write(ns[:])
-	io.WriteString(h, name)
+	h.Write(name)
 	return h.Sum(nil)[:length]
 }

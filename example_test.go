@@ -16,7 +16,7 @@ func ExampleNewV4() {
 }
 
 func ExampleNewV5() {
-	u5, err := gouuid.NewV5(gouuid.NamespaceURL, "nu7hat.ch")
+	u5, err := gouuid.NewV5(gouuid.NamespaceURL, []byte("nu7hat.ch"))
 	if err != nil {
 		fmt.Println("error:", err)
 		return
@@ -25,7 +25,7 @@ func ExampleNewV5() {
 }
 
 func ExampleParseHex() {
-	u, err := gouuid.Parse("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
+	u, err := gouuid.ParseHex("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 	if err != nil {
 		fmt.Println("error:", err)
 		return

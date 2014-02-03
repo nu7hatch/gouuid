@@ -1,5 +1,5 @@
 // This package provides immutable UUID structs and the functions
-// NewV3, NewV4, NewV5 and Parse() for generating versions 3, 4
+// NewV3, NewV4, NewV5 and ParseHex() for generating versions 3, 4
 // and 5 UUIDs as specified in RFC 4122.
 //
 // Copyright (C) 2011 by Krzysztof Kowalik <chris@nu7hat.ch>
@@ -117,13 +117,13 @@ func t_VersionConstraints(v int, u *UUID, t *testing.T) {
 	output("\n")
 }
 
-func TestUUID_ParseString(t *testing.T) {
-	_, err := Parse("foo")
+func TestUUID_ParseHexString(t *testing.T) {
+	_, err := ParseHex("foo")
 	if err == nil {
 		t.Errorf("Expected error due to invalid UUID string")
 	}
 	base, _ := NewV4()
-	u, err := Parse(base.String())
+	u, err := ParseHex(base.String())
 	if err != nil {
 		t.Errorf("Expected to parse UUID sequence without problems")
 		return
@@ -161,15 +161,15 @@ var (
 }
 )
 
-func TestUUID_Parse(t *testing.T) {
+func TestUUID_ParseHex(t *testing.T) {
 	for _, v := range invalidHexStrings {
-		_, err := Parse(v)
+		_, err := ParseHex(v)
 		if err == nil {
 			t.Errorf("Expected error due to invalid UUID string %s", v)
 		}
 	}
 	for _, v := range validHexStrings {
-		_, err := Parse(v)
+		_, err := ParseHex(v)
 		if err != nil {
 			t.Errorf("Expected valid UUID string %s but got error", v)
 		}
@@ -177,7 +177,7 @@ func TestUUID_Parse(t *testing.T) {
 }
 
 func TestNewV3(t *testing.T) {
-	u, err := NewV3(NamespaceURL, "golang.org")
+	u, err := NewV3(NamespaceURL, []byte("golang.org"))
 	if err != nil {
 		t.Errorf("Expected to generate UUID without problems, error thrown: %d", err.Error())
 		return
@@ -192,15 +192,15 @@ func TestNewV3(t *testing.T) {
 	if !re.MatchString(u.String()) {
 		t.Errorf("Expected string representation to be valid, given %s", u.String())
 	}
-	u2, _ := NewV3(NamespaceURL, "golang.org")
+	u2, _ := NewV3(NamespaceURL, []byte("golang.org"))
 	if u2.String() != u.String() {
 		t.Errorf("Expected UUIDs generated of the same namespace and name to be the same")
 	}
-	u3, _ := NewV3(NamespaceDNS, "golang.org")
+	u3, _ := NewV3(NamespaceDNS, []byte("golang.org")  )
 	if u3.String() == u.String() {
 		t.Errorf("Expected UUIDs generated of different namespace and the same name to be different")
 	}
-	u4, _ := NewV3(NamespaceURL, "code.google.com")
+	u4, _ := NewV3(NamespaceURL, []byte("code.google.com") )
 	if u4.String() == u.String() {
 		t.Errorf("Expected UUIDs generated of the same namespace and different names to be different")
 	}
@@ -225,7 +225,7 @@ func TestNewV4(t *testing.T) {
 }
 
 func TestNewV5(t *testing.T) {
-	u, err := NewV5(NamespaceURL, "golang.org")
+	u, err := NewV5(NamespaceURL, []byte("golang.org"))
 	if err != nil {
 		t.Errorf("Expected to generate UUID without problems, error thrown: %d", err.Error())
 		return
@@ -240,24 +240,24 @@ func TestNewV5(t *testing.T) {
 	if !re.MatchString(u.String()) {
 		t.Errorf("Expected string representation to be valid, given %s", u.String())
 	}
-	u2, _ := NewV5(NamespaceURL, "golang.org")
+	u2, _ := NewV5(NamespaceURL, []byte("golang.org"))
 	if u2.String() != u.String() {
 		t.Errorf("Expected UUIDs generated of the same namespace and name to be the same")
 	}
-	u3, _ := NewV5(NamespaceDNS, "golang.org")
+	u3, _ := NewV5(NamespaceDNS, []byte("golang.org"))
 	if u3.String() == u.String() {
 		t.Errorf("Expected UUIDs generated of different namespace and the same name to be different")
 	}
-	u4, _ := NewV5(NamespaceURL, "code.google.com")
+	u4, _ := NewV5(NamespaceURL, []byte("code.google.com"))
 	if u4.String() == u.String() {
 		t.Errorf("Expected UUIDs generated of the same namespace and different names to be different")
 	}
 }
 
-func BenchmarkParseHex(b *testing.B) {
+func BenchmarkParseHexHex(b *testing.B) {
 	s := "f3593cff-ee92-40df-4086-87825b523f13"
 	for i := 0; i < b.N; i++ {
-		_, err := Parse(s)
+		_, err := ParseHex(s)
 		if err != nil {
 			b.Fatal(err)
 		}
