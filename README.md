@@ -8,7 +8,7 @@ and 5 UUIDs as specified in [RFC 4122](http://www.ietf.org/rfc/rfc4122.txt).
 
 Use the `go` tool:
 
-	$ go get github.com/nu7hatch/gouuid
+	$ go get github.com/yieldr/go-uuid/uuid
 
 ## Usage
 
