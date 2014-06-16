@@ -16,7 +16,7 @@ import (
 	"regexp"
 )
 
-// The UUID reserved variants. 
+// The UUID reserved variants.
 const (
 	ReservedNCS       byte = 0x80
 	ReservedRFC4122   byte = 0x40
@@ -118,6 +118,17 @@ func NewV5(ns *UUID, name []byte) (u *UUID, err error) {
 	u.setVariant(ReservedRFC4122)
 	u.setVersion(5)
 	return
+}
+
+// Must is a helper that wraps a call to a function returning (*UUID, error)
+// and panics if the error is non-nil. It is intended for use in variable
+// initializations such as:
+// 	var id = uuid.Must(uuid.NewV4())
+func Must(u *UUID, err error) *UUID {
+	if err != nil {
+		panic(err)
+	}
+	return u
 }
 
 // Generate a MD5 hash of a namespace and a name, and copy it to the
