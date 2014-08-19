@@ -9,3 +9,7 @@ _testmain.go
 _cgo*
 *.o
 *.a
+
+# Godep
+_workspace
+

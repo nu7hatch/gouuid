@@ -1,0 +1,10 @@
+{
+	"ImportPath": "github.com/everpeace/gouuid",
+	"GoVersion": "go1.3.1",
+	"Deps": [
+		{
+			"ImportPath": "github.com/nu7hatch/gouuid",
+			"Rev": "9ab38e785527866644e2cdf14a89ac18dbda2c51"
+		}
+	]
+}
