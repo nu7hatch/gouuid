@@ -11,7 +11,6 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"hash"
 	"regexp"
 )
@@ -169,5 +168,18 @@ func (u *UUID) Version() uint {
 
 // Returns unparsed version of the generated UUID sequence.
 func (u *UUID) String() string {
-	return fmt.Sprintf("%x-%x-%x-%x-%x", u[0:4], u[4:6], u[6:8], u[8:10], u[10:])
+	const s byte = '-'
+	buf := make([]byte, 36)
+
+	hex.Encode(buf[0:8], u[0:4])
+	buf[8] = s
+	hex.Encode(buf[9:13], u[4:6])
+	buf[13] = s
+	hex.Encode(buf[14:18], u[6:8])
+	buf[18] = s
+	hex.Encode(buf[19:23], u[8:10])
+	buf[23] = s
+	hex.Encode(buf[24:], u[10:])
+
+	return string(buf)
 }

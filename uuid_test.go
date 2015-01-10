@@ -6,6 +6,7 @@
 package uuid
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 )
@@ -122,6 +123,12 @@ func TestNewV5(t *testing.T) {
 	}
 }
 
+func TestString(t *testing.T) {
+	if NamespaceDNS.String() != "6ba7b810-9dad-11d1-80b4-00c04fd430c8" {
+		t.Error("Expected String returns unparsed version of UUID")
+	}
+}
+
 func BenchmarkParseHex(b *testing.B) {
 	s := "f3593cff-ee92-40df-4086-87825b523f13"
 	for i := 0; i < b.N; i++ {
@@ -129,6 +136,22 @@ func BenchmarkParseHex(b *testing.B) {
 		if err != nil {
 			b.Fatal(err)
 		}
+	}
+	b.StopTimer()
+	b.ReportAllocs()
+}
+
+func BenchmarkStringNew(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_ = NamespaceDNS.String()
+	}
+	b.StopTimer()
+	b.ReportAllocs()
+}
+
+func BenchmarkStringOld(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_ = fmt.Sprintf("%x-%x-%x-%x-%x", NamespaceDNS[0:4], NamespaceDNS[4:6], NamespaceDNS[6:8], NamespaceDNS[8:10], NamespaceDNS[10:])
 	}
 	b.StopTimer()
 	b.ReportAllocs()
