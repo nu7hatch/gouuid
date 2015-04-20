@@ -122,6 +122,39 @@ func TestNewV5(t *testing.T) {
 	}
 }
 
+func TestMarshalJSON(t *testing.T) {
+	u, err := ParseHex("89d7afd8-b795-4a29-bb06-7a1aad5b1d62")
+	if err != nil {
+		t.Error("failed to generate uuid for testing: ", err.Error())
+		return
+	}
+	data, err := u.MarshalJSON()
+	if err != nil {
+		t.Error("failed to marshal uuid: ", err.Error())
+		return
+	}
+	if string(data) != "\"89d7afd8-b795-4a29-bb06-7a1aad5b1d62\"" {
+		t.Error("marsheld uuid does not match the original")
+	}
+}
+
+func TestUnmarshalJSON(t *testing.T) {
+	u1, err := ParseHex("89d7afd8-b795-4a29-bb06-7a1aad5b1d62")
+	u2 := new(UUID)
+	if err != nil {
+		t.Error("failed to generate uuid for testing: ", err.Error())
+		return
+	}
+	err = u2.UnmarshalJSON([]byte("\"89d7afd8-b795-4a29-bb06-7a1aad5b1d62\""))
+	if err != nil {
+		t.Error("failed to marshal uuid: ", err.Error())
+		return
+	}
+	if u1.String() != "89d7afd8-b795-4a29-bb06-7a1aad5b1d62" {
+		t.Error("unmarsheld uuid does not match the original")
+	}
+}
+
 func BenchmarkParseHex(b *testing.B) {
 	s := "f3593cff-ee92-40df-4086-87825b523f13"
 	for i := 0; i < b.N; i++ {
