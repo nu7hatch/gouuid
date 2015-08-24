@@ -1,4 +1,4 @@
-// This package provides immutable UUID structs and the functions
+// Package uuid provides immutable UUID structs and the functions
 // NewV3, NewV4, NewV5 and Parse() for generating versions 3, 4
 // and 5 UUIDs as specified in RFC 4122.
 //
@@ -16,7 +16,7 @@ import (
 	"regexp"
 )
 
-// The UUID reserved variants. 
+// The UUID reserved variants.
 const (
 	ReservedNCS       byte = 0x80
 	ReservedRFC4122   byte = 0x40
@@ -41,7 +41,7 @@ const hexPattern = "^(urn\\:uuid\\:)?\\{?([a-z0-9]{8})-([a-z0-9]{4})-" +
 
 var re = regexp.MustCompile(hexPattern)
 
-// A UUID representation compliant with specification in
+// UUID is an UUID representation compliant with specification in
 // RFC 4122 document.
 type UUID [16]byte
 
@@ -80,8 +80,8 @@ func Parse(b []byte) (u *UUID, err error) {
 	return
 }
 
-// Generate a UUID based on the MD5 hash of a namespace identifier
-// and a name.
+// NewV3 generates a UUID based on the MD5 hash of a namespace
+// identifier and a name.
 func NewV3(ns *UUID, name []byte) (u *UUID, err error) {
 	if ns == nil {
 		err = errors.New("Invalid namespace UUID")
@@ -95,7 +95,7 @@ func NewV3(ns *UUID, name []byte) (u *UUID, err error) {
 	return
 }
 
-// Generate a random UUID.
+// NewV4 generates a random UUID.
 func NewV4() (u *UUID, err error) {
 	u = new(UUID)
 	// Set all bits to randomly (or pseudo-randomly) chosen values.
@@ -108,8 +108,8 @@ func NewV4() (u *UUID, err error) {
 	return
 }
 
-// Generate a UUID based on the SHA-1 hash of a namespace identifier
-// and a name.
+// NewV5 generates a UUID based on the SHA-1 hash of a namespace
+// identifier and a name.
 func NewV5(ns *UUID, name []byte) (u *UUID, err error) {
 	u = new(UUID)
 	// Set all bits to truncated SHA1 hash generated from namespace
@@ -167,7 +167,7 @@ func (u *UUID) Version() uint {
 	return uint(u[6] >> 4)
 }
 
-// Returns unparsed version of the generated UUID sequence.
+// String returns unparsed version of the generated UUID sequence.
 func (u *UUID) String() string {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", u[0:4], u[4:6], u[6:8], u[8:10], u[10:])
 }
