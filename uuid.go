@@ -144,7 +144,7 @@ func (u *UUID) setVariant(v byte) {
 // Variant returns the UUID Variant, which determines the internal
 // layout of the UUID. This will be one of the constants: RESERVED_NCS,
 // RFC_4122, RESERVED_MICROSOFT, RESERVED_FUTURE.
-func (u *UUID) Variant() byte {
+func (u UUID) Variant() byte {
 	if u[8]&ReservedNCS == ReservedNCS {
 		return ReservedNCS
 	} else if u[8]&ReservedRFC4122 == ReservedRFC4122 {
@@ -163,11 +163,11 @@ func (u *UUID) setVersion(v byte) {
 
 // Version returns a version number of the algorithm used to
 // generate the UUID sequence.
-func (u *UUID) Version() uint {
+func (u UUID) Version() uint {
 	return uint(u[6] >> 4)
 }
 
 // String returns unparsed version of the generated UUID sequence.
-func (u *UUID) String() string {
+func (u UUID) String() string {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", u[0:4], u[4:6], u[6:8], u[8:10], u[10:])
 }
