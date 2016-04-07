@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-const format = "^[a-z0-9]{8}-[a-z0-9]{4}-[1-5][a-z0-9]{3}-[a-z0-9]{4}-[a-z0-9]{12}$"
+const format = "^[a-f0-9]{8}-[a-f0-9]{4}-[1-5][a-f0-9]{3}-[a-f0-9]{4}-[a-f0-9]{12}$"
 
 func TestParse(t *testing.T) {
 	_, err := Parse([]byte{1, 2, 3, 4, 5})
