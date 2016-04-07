@@ -36,8 +36,8 @@ var (
 // FIXME: do something to consider both brackets at one time,
 // current one allows to parse string with only one opening
 // or closing bracket.
-const hexPattern = "^(urn\\:uuid\\:)?\\{?([a-z0-9]{8})-([a-z0-9]{4})-" +
-	"([1-5][a-z0-9]{3})-([a-z0-9]{4})-([a-z0-9]{12})\\}?$"
+const hexPattern = "^(urn\\:uuid\\:)?\\{?([a-f0-9]{8})-([a-f0-9]{4})-" +
+	"([1-5][a-f0-9]{3})-([a-f0-9]{4})-([a-f0-9]{12})\\}?$"
 
 var re = regexp.MustCompile(hexPattern)
 
