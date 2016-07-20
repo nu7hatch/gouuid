@@ -54,18 +54,23 @@ type UUID [16]byte
 //     uuid.ParseHex("urn:uuid:6ba7b814-9dad-11d1-80b4-00c04fd430c8")
 //
 func ParseHex(s string) (u *UUID, err error) {
+	b, err := parseHex(s)
+	if err != nil {
+		return
+	}
+	u = new(UUID)
+	copy(u[:], b)
+	return
+}
+
+func parseHex(s string) (b []byte, err error) {
 	md := re.FindStringSubmatch(s)
 	if md == nil {
 		err = errors.New("Invalid UUID string")
 		return
 	}
 	hash := md[2] + md[3] + md[4] + md[5] + md[6]
-	b, err := hex.DecodeString(hash)
-	if err != nil {
-		return
-	}
-	u = new(UUID)
-	copy(u[:], b)
+	b, err = hex.DecodeString(hash)
 	return
 }
 
@@ -191,10 +196,10 @@ func (u *UUID) UnmarshalJSON(b []byte) error {
 	if len(s) < 2 {
 		return errors.New("Invalid UUID string")
 	}
-	v, err := ParseHex(s[1 : len(s)-1])
+	b, err := parseHex(s[1 : len(s)-1])
 	if err != nil {
 		return err
 	}
-	copy(u[:], v[:])
+	copy(u[:], b)
 	return nil
 }
