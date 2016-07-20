@@ -54,18 +54,23 @@ type UUID [16]byte
 //     uuid.ParseHex("urn:uuid:6ba7b814-9dad-11d1-80b4-00c04fd430c8")
 //
 func ParseHex(s string) (u *UUID, err error) {
+	b, err := parseHex(s)
+	if err != nil {
+		return
+	}
+	u = new(UUID)
+	copy(u[:], b)
+	return
+}
+
+func parseHex(s string) (b []byte, err error) {
 	md := re.FindStringSubmatch(s)
 	if md == nil {
 		err = errors.New("Invalid UUID string")
 		return
 	}
 	hash := md[2] + md[3] + md[4] + md[5] + md[6]
-	b, err := hex.DecodeString(hash)
-	if err != nil {
-		return
-	}
-	u = new(UUID)
-	copy(u[:], b)
+	b, err = hex.DecodeString(hash)
 	return
 }
 
@@ -170,4 +175,31 @@ func (u *UUID) Version() uint {
 // Returns unparsed version of the generated UUID sequence.
 func (u *UUID) String() string {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", u[0:4], u[4:6], u[6:8], u[8:10], u[10:])
+}
+
+// MarshalJSON implements the json.Marshaler interface.
+// The UUID is a quoted string in 8-4-4-4-12 format.
+func (u *UUID) MarshalJSON() ([]byte, error) {
+	v := []byte(u.String())
+	b := make([]byte, 0, len(v)+2)
+	b = append(b, '"')
+	b = append(b, v...)
+	b = append(b, '"')
+	return b, nil
+}
+
+// UnmarshalJSON implements the json.Unmarshaler interface.
+// The UUID is expected to be a quoted string in a format supported by ParseHex.
+func (u *UUID) UnmarshalJSON(b []byte) error {
+	s := string(b)
+	// Guard against a short slice, allow ParseHex to deal with everything else.
+	if len(s) < 2 {
+		return errors.New("Invalid UUID string")
+	}
+	b, err := parseHex(s[1 : len(s)-1])
+	if err != nil {
+		return err
+	}
+	copy(u[:], b)
+	return nil
 }
