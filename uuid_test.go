@@ -6,6 +6,8 @@
 package uuid
 
 import (
+	"encoding/json"
+	"fmt"
 	"regexp"
 	"testing"
 )
@@ -119,6 +121,39 @@ func TestNewV5(t *testing.T) {
 	u4, _ := NewV5(NamespaceURL, []byte("code.google.com"))
 	if u4.String() == u.String() {
 		t.Errorf("Expected UUIDs generated of the same namespace and different names to be different")
+	}
+}
+
+func TestMarshalJSON(t *testing.T) {
+	u, err := NewV4()
+	if err != nil {
+		t.Errorf("Expected to generate UUID without problems, error thrown: %d", err.Error())
+		return
+	}
+	b, err := json.Marshal(u)
+	if err != nil {
+		t.Errorf("Expected no problem marshaling UUID")
+	}
+	re := regexp.MustCompile(fmt.Sprintf("^\"%s\"$", format[1:len(format)-1]))
+	if !re.MatchString(string(b)) {
+		t.Errorf("Expected JSON representation to be valid, given %s", string(b))
+	}
+}
+
+func TestUnmarshalJSON(t *testing.T) {
+	b := []byte("\"42c4d4c2-baa5-4e24-47d6-cf50b3cb8c3f\"")
+	u := new(UUID)
+	err := json.Unmarshal(b, u)
+	if err != nil {
+		t.Errorf("Expected to unmarshal well formed UUID json: %v", err)
+	}
+	if u.String() != string(b[1:len(b)-1]) {
+		t.Errorf("Expected unmarshaled UUID and input to be the same")
+	}
+
+	err = json.Unmarshal([]byte("0"), u)
+	if err == nil {
+		t.Errorf("Expected error due to unmarshaling a short slice")
 	}
 }
 

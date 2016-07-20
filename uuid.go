@@ -171,3 +171,30 @@ func (u *UUID) Version() uint {
 func (u *UUID) String() string {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", u[0:4], u[4:6], u[6:8], u[8:10], u[10:])
 }
+
+// MarshalJSON implements the json.Marshaler interface.
+// The UUID is a quoted string in 8-4-4-4-12 format.
+func (u *UUID) MarshalJSON() ([]byte, error) {
+	v := []byte(u.String())
+	b := make([]byte, 0, len(v)+2)
+	b = append(b, '"')
+	b = append(b, v...)
+	b = append(b, '"')
+	return b, nil
+}
+
+// UnmarshalJSON implements the json.Unmarshaler interface.
+// The UUID is expected to be a quoted string in a format supported by ParseHex.
+func (u *UUID) UnmarshalJSON(b []byte) error {
+	s := string(b)
+	// Guard against a short slice, allow ParseHex to deal with everything else.
+	if len(s) < 2 {
+		return errors.New("Invalid UUID string")
+	}
+	v, err := ParseHex(s[1 : len(s)-1])
+	if err != nil {
+		return err
+	}
+	copy(u[:], v[:])
+	return nil
+}
