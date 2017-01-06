@@ -16,7 +16,7 @@ import (
 	"regexp"
 )
 
-// The UUID reserved variants. 
+// The UUID reserved variants.
 const (
 	ReservedNCS       byte = 0x80
 	ReservedRFC4122   byte = 0x40
@@ -125,7 +125,7 @@ func NewV5(ns *UUID, name []byte) (u *UUID, err error) {
 func (u *UUID) setBytesFromHash(hash hash.Hash, ns, name []byte) {
 	hash.Write(ns[:])
 	hash.Write(name)
-	copy(u[:], hash.Sum([]byte{})[:16])
+	copy(u[:], hash.Sum(nil)[:16])
 }
 
 // Set the two most significant bits (bits 6 and 7) of the
